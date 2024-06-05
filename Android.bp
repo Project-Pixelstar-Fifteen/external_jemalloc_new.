@@ -253,6 +253,49 @@ cc_library {
 }
 
 //-----------------------------------------------------------------------
+// jemalloc "je"-prefixed static library
+//
+// This is the same as "libjemalloc5", except:
+//  - It only supports host (just because we don't need it for device)
+//  - all the functions (malloc, calloc, free, etc.) have a "je_" prefix.
+//    The -DJEMALLOC_NO_RENAME flag causes the prefix to be added.
+//
+// We need this because when building rust binaries with jemalloc and
+// the tikv-jemallocator wrappers, code in libc gets a segfault before
+// reaching main(). I'm not sure why that is, but if we prefix the jemalloc
+// methods and have the tikv-jemallocator crate use the prefixed ones,
+// all rust code will use jemalloc successfully while libc will continue
+// using the system allocator.
+//-----------------------------------------------------------------------
+cc_library_host_static {
+    name: "libjemalloc5_je_prefixed",
+
+    defaults: ["jemalloc5_defaults"],
+
+    cflags: ["-DJEMALLOC_NO_RENAME"],
+
+    srcs: lib_src_files,
+
+    export_include_dirs: ["include"],
+
+    target: {
+        linux_bionic: {
+            system_shared_libs: [],
+            header_libs: ["libc_headers"],
+        },
+        musl: {
+            // Linking against musl uses libjemalloc5 by default, list only
+            // libc_musl here to avoid a circular dependency.
+            system_shared_libs: ["libc_musl"],
+        },
+    },
+
+    visibility: [
+        "//external/rust/crates/tikv-jemalloc-sys:__subpackages__",
+    ],
+}
+
+//-----------------------------------------------------------------------
 // jemalloc static jet library
 //-----------------------------------------------------------------------
 cc_library_static {
