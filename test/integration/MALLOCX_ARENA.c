@@ -2,7 +2,19 @@
 
 #define NTHREADS 10
 
+<<<<<<< HEAD
 void *
+=======
+static bool have_dss =
+#ifdef JEMALLOC_DSS
+    true
+#else
+    false
+#endif
+    ;
+
+static void *
+>>>>>>> ba151f03a6e345b1159b6e7798dbe89112baa650
 thd_start(void *arg) {
 	unsigned thread_ind = (unsigned)(uintptr_t)arg;
 	unsigned arena_ind;

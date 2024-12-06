@@ -1,6 +1,18 @@
 #include "test/jemalloc_test.h"
 
+<<<<<<< HEAD
 void *
+=======
+static const bool config_stats =
+#ifdef JEMALLOC_STATS
+    true
+#else
+    false
+#endif
+    ;
+
+static void *
+>>>>>>> ba151f03a6e345b1159b6e7798dbe89112baa650
 thd_start(void *arg) {
 	int err;
 	void *p;
